@@ -1,0 +1,7 @@
+Django
+djangorestframework
+python-dotenv
+djangorestframework-simplejwt
+django_countries
+pillow
+python-dotenv
