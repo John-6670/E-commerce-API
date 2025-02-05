@@ -13,6 +13,7 @@ class CustomUser(AbstractUser):
     phone_number = models.CharField(_('Phone Number'), max_length=13, null=True, blank=True, unique=True)
     date_of_birth = models.DateField(null=True, blank=True)
     national_id = models.CharField(max_length=10, null=True, blank=True, unique=True)
+    is_seller = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
