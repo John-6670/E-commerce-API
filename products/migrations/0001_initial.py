@@ -67,10 +67,10 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='product',
-            constraint=models.CheckConstraint(condition=models.Q(('discount__range', (0, 100))), name='products_product_discount_range'),
+            constraint=models.CheckConstraint(check=models.Q(('discount__range', (0, 100))), name='products_product_discount_range'),
         ),
         migrations.AddConstraint(
             model_name='review',
-            constraint=models.CheckConstraint(condition=models.Q(('rate__range', (1, 5))), name='products_review_rate_range'),
+            constraint=models.CheckConstraint(check=models.Q(('rate__range', (1, 5))), name='products_review_rate_range'),
         ),
     ]
