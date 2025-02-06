@@ -30,7 +30,7 @@ class CartSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    user = serializers.HyperlinkedRelatedField(view_name='user-detail', read_only=True)
+    user = serializers.HyperlinkedRelatedField(view_name='profile', read_only=True)
     cart = CartSerializer()
 
     class Meta:

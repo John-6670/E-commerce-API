@@ -36,7 +36,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = serializers.HyperlinkedRelatedField(view_name='productcategory-detail', read_only=True)
+    category = serializers.HyperlinkedRelatedField(view_name='product-category-detail', read_only=True)
     images = ProductImageSerializer(many=True, read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
     rate = serializers.SerializerMethodField()

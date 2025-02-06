@@ -34,7 +34,7 @@ class CustomUser(AbstractUser):
 
 class Address(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='addresses')
-    country = CountryField()
+    country = models.CharField(max_length=100, default='Iran')
     city = models.CharField(max_length=100)
     street_address = models.CharField(max_length=100)
     apartment_address = models.CharField(max_length=100)
@@ -46,3 +46,9 @@ class Address(models.Model):
 
     class Meta:
         ordering = ("-created_at",)
+
+    def save(self, *args, **kwargs):
+        self.country = self.country.title()
+        self.city = self.city.title()
+        self.street_address = self.street_address.title()
+        super().save(*args, **kwargs)
