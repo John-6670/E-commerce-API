@@ -5,7 +5,7 @@ from .models import Product, ProductCategory, ProductImage, Review
 
 # TODO: create view for parent field in ProductCategorySerializer
 class ProductCategorySerializer(serializers.ModelSerializer):
-    parent = serializers.HyperlinkedRelatedField(view_name='productcategory-detail', read_only=True)
+    parent = serializers.HyperlinkedRelatedField(view_name='product-category-detail', read_only=True)
 
     class Meta:
         model = ProductCategory
