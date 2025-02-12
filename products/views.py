@@ -1,5 +1,4 @@
 from rest_framework import viewsets, permissions
-from rest_framework.generics import RetrieveAPIView
 
 from .models import Product, ProductCategory, Review
 from .serializers import ProductSerializer, ProductCategorySerializer, ReviewSerializer
@@ -30,4 +29,5 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return Review.objects.filter(product__slug=product_slug)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        product = Product.objects.get(slug=self.kwargs.get('product_slug'))
+        serializer.save(user=self.request.user, product=product)

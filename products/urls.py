@@ -9,6 +9,6 @@ router.register('categories', ProductCategoryViewSet, basename='category')  # Ex
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('<slug:product_slug>/reviews/', ReviewViewSet.as_view({'get': 'list', 'post': 'create'}), name='review-list'),
-    path('<slug:product_slug>/reviews/<int:pk>/', ReviewViewSet.as_view({'put': 'update', 'delete': 'destroy'}), name='review-detail'),
+    path('all/<slug:product_slug>/reviews/', ReviewViewSet.as_view({'get': 'list', 'post': 'create'}), name='review-list'),
+    path('all/<slug:product_slug>/reviews/<int:pk>/', ReviewViewSet.as_view({'put': 'update', 'delete': 'destroy', 'get': 'retrieve'}), name='review-detail'),
 ]

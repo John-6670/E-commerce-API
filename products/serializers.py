@@ -57,6 +57,4 @@ class ProductSerializer(serializers.ModelSerializer):
         if stock < 0:
             raise serializers.ValidationError('Stock must be greater than or equal to 0.')
 
-        user = self.request.user
-        if not user.is_seller_or_admin:
-            raise serializers.ValidationError("You don't have permission to do that.")
+        return data

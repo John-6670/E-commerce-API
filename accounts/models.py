@@ -23,9 +23,6 @@ class CustomUser(AbstractUser):
         else:
             return None
 
-    def is_seller_or_admin(self):
-        return self.is_seller or self.is_superuser
-
     def __str__(self):
         return self.full_name or self.username
 
