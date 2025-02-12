@@ -1,10 +1,11 @@
 from rest_framework import serializers
 
 from .models import Order, Cart, CartItem, Payment, ShippingAddress
+from products.serializers import ProductSerializer
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    product = serializers.HyperlinkedRelatedField(view_name='product-detail', read_only=True, lookup_field='slug')
+    product = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = CartItem
@@ -23,15 +24,10 @@ class CartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = ['id', 'items']
 
-    def validate_items(self, value):
-        if not value:
-            raise serializers.ValidationError("Cart must have at least one item")
-        return value
-
 
 class OrderSerializer(serializers.ModelSerializer):
     user = serializers.HyperlinkedRelatedField(view_name='profile', read_only=True)
-    cart = CartSerializer()
+    cart = serializers.HyperlinkedRelatedField(view_name='cart-detail', read_only=True)
 
     class Meta:
         model = Order
@@ -43,16 +39,6 @@ class OrderSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Status is wrong')
         return value
 
-    def create(self, validated_data):
-        cart_data = validated_data.pop('cart')
-        cart_items_data = cart_data.pop('items')
-
-        cart = Cart.objects.create(**cart_data)
-        for item_data in cart_items_data:
-            CartItem.objects.create(cart=cart, **item_data)
-
-        order = Order.objects.create(cart=cart, **validated_data)
-        return order
 
 class PaymentSerializer(serializers.ModelSerializer):
     order = serializers.HyperlinkedRelatedField(view_name='order-detail', read_only=True)
