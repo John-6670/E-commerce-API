@@ -13,7 +13,6 @@ class CustomUser(AbstractUser):
     phone_number = models.CharField(_('Phone Number'), max_length=13, null=True, blank=True, unique=True)
     date_of_birth = models.DateField(null=True, blank=True)
     national_id = models.CharField(max_length=10, null=True, blank=True, unique=True)
-    is_seller = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
@@ -23,6 +22,9 @@ class CustomUser(AbstractUser):
             return f'{self.first_name} {self.last_name}'
         else:
             return None
+
+    def is_seller_or_admin(self):
+        return self.is_seller or self.is_superuser
 
     def __str__(self):
         return self.full_name or self.username

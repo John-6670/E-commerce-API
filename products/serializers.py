@@ -3,9 +3,8 @@ from rest_framework import serializers
 from .models import Product, ProductCategory, ProductImage, Review
 
 
-# TODO: create view for parent field in ProductCategorySerializer
 class ProductCategorySerializer(serializers.ModelSerializer):
-    parent = serializers.HyperlinkedRelatedField(view_name='product-category-detail', read_only=True)
+    parent = serializers.HyperlinkedRelatedField(view_name='category-detail', read_only=True, lookup_field='slug')
 
     class Meta:
         model = ProductCategory
@@ -20,7 +19,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
-    product = serializers.HyperlinkedRelatedField(view_name='product-detail', read_only=True)
+    product = serializers.HyperlinkedRelatedField(view_name='product-detail', read_only=True, lookup_field='slug')
 
     class Meta:
         model = Review
@@ -36,7 +35,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = serializers.HyperlinkedRelatedField(view_name='product-category-detail', read_only=True)
+    category = serializers.HyperlinkedRelatedField(view_name='category-detail', read_only=True, lookup_field='slug')
     images = ProductImageSerializer(many=True, read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
     rate = serializers.SerializerMethodField()
@@ -44,16 +43,20 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'name', 'desc', 'price', 'stock', 'category', 'discount', 'images', 'reviews', 'rate', 'created_at', 'updated_at']
+        lookup_field = 'slug'
 
     def get_rate(self, obj):
         return obj.rate
 
-    def validate_discount(self, value):
-        if value < 0 or value > 100:
-            raise serializers.ValidationError("Discount must be between 0 and 100.")
-        return value
+    def validate(self, data):
+        discount = data.get('discount', 0)
+        if not 0 <= discount <= 100:
+            raise serializers.ValidationError('Discount must be between 0 and 100.')
 
-    def validate_stock(self, value):
-        if value < 0:
-            raise serializers.ValidationError("Stock must be greater than or equal to 0.")
-        return value
+        stock = data.get('stock', 1)
+        if stock < 0:
+            raise serializers.ValidationError('Stock must be greater than or equal to 0.')
+
+        user = self.request.user
+        if not user.is_seller_or_admin:
+            raise serializers.ValidationError("You don't have permission to do that.")

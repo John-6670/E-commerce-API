@@ -40,7 +40,7 @@ class Product(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products', null=True)
     desc = models.TextField(_("Description"), blank=True)
     price = models.DecimalField(decimal_places=2, max_digits=10)
-    stock = models.PositiveIntegerField(default=0)
+    stock = models.PositiveIntegerField(default=1)
     category = models.ForeignKey(ProductCategory, on_delete=models.SET(get_default_product_category),
                                  default=get_default_product_category, related_name='product_list')
     discount = models.PositiveIntegerField(default=0)

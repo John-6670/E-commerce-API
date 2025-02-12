@@ -4,7 +4,7 @@ from .models import Order, Cart, CartItem, Payment, ShippingAddress
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    product = serializers.HyperlinkedRelatedField(view_name='product-detail', read_only=True)
+    product = serializers.HyperlinkedRelatedField(view_name='product-detail', read_only=True, lookup_field='slug')
 
     class Meta:
         model = CartItem
