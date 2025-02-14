@@ -4,8 +4,6 @@ from .models import Product, ProductCategory, ProductImage, Review
 
 
 class ProductCategorySerializer(serializers.ModelSerializer):
-    parent = serializers.HyperlinkedRelatedField(view_name='category-detail', read_only=True, lookup_field='slug')
-
     class Meta:
         model = ProductCategory
         fields = ['id', 'name', 'parent']
@@ -19,7 +17,6 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
-    product = serializers.HyperlinkedRelatedField(view_name='product-detail', read_only=True, lookup_field='slug')
 
     class Meta:
         model = Review
@@ -35,7 +32,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = serializers.HyperlinkedRelatedField(view_name='category-detail', read_only=True, lookup_field='slug')
     images = ProductImageSerializer(many=True, read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
     rate = serializers.SerializerMethodField()

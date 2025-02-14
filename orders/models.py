@@ -36,7 +36,7 @@ class CartItem(models.Model):
 class Order(models.Model):
     class Status(models.TextChoices):
         AWAITING_PENDING = 'A', 'Awaiting payment'
-        COMPLETED = 'p', 'paid'
+        COMPLETED = 'p', 'Paid'
         CANCELLED = 'X', 'Cancelled'
         DELIVERED = 'D', 'Delivered'
         SHIPPED = 'S', 'Shipped'
@@ -79,16 +79,3 @@ class Payment(models.Model):
     def save(self, *args, **kwargs):
         self.amount = self.order.total
         super().save(*args, **kwargs)
-
-
-class ShippingAddress(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shipping_addresses')
-    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='shipping_address')
-    address = models.ForeignKey(Address, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ('-created_at',)
-
-    def __str__(self):
-        return f"Shipping address for order {self.order.id}"

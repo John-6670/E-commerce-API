@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Cart, CartItem, Order, Payment, ShippingAddress
+from .models import Cart, CartItem, Order, Payment
 
 
 class CartItemInline(admin.TabularInline):
@@ -27,10 +27,3 @@ class PaymentAdmin(admin.ModelAdmin):
     list_display = ('order', 'amount', 'status', 'created_at')
     search_fields = ('order__user__username', 'order__user__email')
     list_filter = ('status',)
-
-
-@admin.register(ShippingAddress)
-class ShippingAddressAdmin(admin.ModelAdmin):
-    list_display = ('user', 'address', 'order')
-    search_fields = ('user__username', 'user__email')
-    list_filter = ('address__city', 'address__country')
