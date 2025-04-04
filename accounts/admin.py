@@ -11,12 +11,12 @@ class AddressInline(admin.TabularInline):
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
     inlines = (AddressInline,)
-    list_display = ('full_name', 'email', 'phone_number', 'date_of_birth', 'national_id')
-    list_display_links = ('full_name', 'email')
+    list_display = ('username', 'email', 'full_name', 'phone_number', 'date_of_birth', 'national_id', 'is_verified')
+    list_display_links = ('email', 'username')
     search_fields = ('full_name', 'email', 'phone_number', 'national_id')
-    list_filter = ('date_of_birth', 'is_active', 'is_staff', 'is_superuser')
+    list_filter = ('date_of_birth', 'is_active', 'is_staff', 'is_superuser', 'is_verified')
     fieldsets = (
-        (None, {'fields': ('username', 'email', 'phone_number')}),
+        (None, {'fields': ('username', 'email', 'phone_number', 'is_verified')}),
         ('Personal info', {
             'classes': ('collapse',),
             'fields': ('first_name', 'last_name', 'national_id', 'date_of_birth')
