@@ -1,6 +1,10 @@
+import jwt
+
 from rest_framework import generics, viewsets, views, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
+
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.conf import settings
@@ -8,7 +12,7 @@ from django.core.mail import send_mail
 
 from .models import Address
 from .serializers import UserSerializer, AddressSerializer
-from .utils import generate_email_verification_token, verify_email_token
+from .utils import generate_token, verify_token
 
 User = get_user_model()
 
@@ -21,6 +25,9 @@ class ProfileRetrieveUpdateView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
     def perform_update(self, serializer):
+        if self.request.data.get('password'):
+            raise ValidationError("Password cannot be updated here. Use the password reset endpoint.")
+
         user = self.request.user
         old_email = user.email
         new_email = self.request.data.get('email')
@@ -53,11 +60,13 @@ class AddressViewSet(viewsets.ModelViewSet):
 
 class EmailVerificationView(views.APIView):
     def get(self, request, token):
-        payload = verify_email_token(token)
-        if not payload:
-            return Response({'error': 'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user_id = verify_token(token, 'email_verification')
+        except jwt.ExpiredSignatureError:
+            return Response({'detail': 'Token expired'}, status=400)
+        except jwt.InvalidTokenError:
+            return Response({'detail': 'Invalid token'}, status=400)
 
-        user_id = payload.get('user_id')
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
@@ -80,7 +89,7 @@ class SendVerificationEmailView(views.APIView):
             return Response({'error': 'Email already verified.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Generate token and build the verification URL.
-        token = generate_email_verification_token(user)
+        token = generate_token(user, 3600*24, 'email_verification')
         verification_url = request.build_absolute_uri(
             reverse('email-verify', kwargs={'token': token})
         )
@@ -90,3 +99,49 @@ class SendVerificationEmailView(views.APIView):
 
         send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email])
         return Response({'message': 'Verification email sent.'}, status=status.HTTP_200_OK)
+
+
+class RequestPasswordResetView(views.APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({'detail': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email=email, is_verified=True)
+        except User.DoesNotExist:
+            return Response({'detail': 'No verified user with this email'}, status=status.HTTP_404_NOT_FOUND)
+
+        token = generate_token(user, 15, 'password_reset')
+        reset_url = request.build_absolute_uri(
+            reverse('reset-password-confirm', kwargs={'token': token})
+        )
+
+        send_mail(
+            subject="Password Reset Request",
+            message=f"Hi {user.username}, use the link below to reset your password:\n{reset_url}",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[user.email],
+        )
+
+        return Response({'detail': 'Password reset email sent'})
+
+
+class PasswordResetConfirmView(views.APIView):
+    def post(self, request, token):
+        try:
+            user_id = verify_token(token, 'password_reset')
+        except jwt.ExpiredSignatureError:
+            return Response({'detail': 'Token expired'}, status=400)
+        except jwt.InvalidTokenError:
+            return Response({'detail': 'Invalid token'}, status=400)
+
+        new_password = request.data.get('password')
+        if not new_password:
+            raise ValidationError("Password is required")
+
+        user = User.objects.get(id=user_id)
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'detail': 'Password successfully reset'})
