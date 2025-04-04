@@ -6,3 +6,4 @@ pillow
 python-dotenv
 drf-yasg
 django-cors-headers
+pyjwt

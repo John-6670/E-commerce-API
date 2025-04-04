@@ -1,11 +1,15 @@
 # E-Commerce Web API
 
+---
+
 ## Overview
-This project is a Django-based web API that includes user authentication, product management, and order processing.
+This project is a Django-based web API that includes user authentication, product management, order processing, and user email verification.
 
 ## Features
 - User registration and authentication using JWT.
-- Profile management.
+- Email verification after registration or email update.
+- Secure password reset flow using verified email addresses.
+- Profile management (excluding password changes).
 - Product listing and management.
 - Order creation and management.
 - Signal handling for automatic cart creation.
@@ -14,6 +18,11 @@ This project is a Django-based web API that includes user authentication, produc
 - Admin panel for managing products and orders.
 - JWT token authentication for protected endpoints.
 - Uses PostgreSQL as the database.
+
+## Authentication Updates
+- After signing up or updating the email address, users receive a verification email.
+- Only verified users can request a password reset link.
+- **Password cannot be changed via the `/users/profile/` endpoint anymore**. It must be done through the password reset flow.
 
 ## Installation
 
@@ -27,11 +36,13 @@ This project is a Django-based web API that includes user authentication, produc
     git clone https://github.com/John-6670/E-commerce-API.git
     cd yourproject
     ```
+
 2. Create and activate a virtual environment:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
     ```
+
 3. Install the dependencies:
     ```bash
     pip install -r requirements.txt
@@ -47,6 +58,9 @@ This project is a Django-based web API that includes user authentication, produc
     DB_PASSWORD=your_db_password
     DB_HOST=your_db_host
     DB_PORT=your_db_port
+
+    EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+    # Replace the above with a real email backend if needed
     ```
 
 ## Usage
@@ -54,17 +68,25 @@ This project is a Django-based web API that includes user authentication, produc
     ```bash
     python manage.py migrate
     ```
+
 2. Create a superuser:
     ```bash
     python manage.py createsuperuser
     ```
+
 3. Run the development server:
     ```bash
     python manage.py runserver
     ```
 
-## Documentation
-1. Access the API documentation at `http://localhost:8000/swagger/`. or `http://localhost:8000/redoc/`
-2. Use the JWT token to authenticate requests.
-3. Create a user and log in to access the protected endpoints.
-4. Use the admin panel to manage products and orders.
+## API Documentation
+- Swagger: `http://localhost:8000/swagger/`
+- ReDoc: `http://localhost:8000/redoc/`
+
+## Authentication Flow
+- Register → Verify email → Login
+- Add/change email → Verify new email
+- Forgot password → Request password reset → Check email → Reset password
+
+## Testing
+For testing email verification and password reset in development, console email backend is used. Emails will appear in the terminal.
