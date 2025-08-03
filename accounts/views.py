@@ -109,22 +109,22 @@ class RequestPasswordResetView(views.APIView):
 
         try:
             user = User.objects.get(email=email, is_verified=True)
+            token = generate_token(user, 15, 'password_reset')
+            reset_url = request.build_absolute_uri(
+                reverse('reset-password-confirm', kwargs={'token': token})
+            )
+
+            send_mail(
+                subject="Password Reset Request",
+                message=f"Hi {user.username}, use the link below to reset your password:\n{reset_url}",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[user.email],
+            )
         except User.DoesNotExist:
-            return Response({'detail': 'No verified user with this email'}, status=status.HTTP_404_NOT_FOUND)
+            # Do not disclose whether the email exists or not for security reasons.
+            pass
 
-        token = generate_token(user, 15, 'password_reset')
-        reset_url = request.build_absolute_uri(
-            reverse('reset-password-confirm', kwargs={'token': token})
-        )
-
-        send_mail(
-            subject="Password Reset Request",
-            message=f"Hi {user.username}, use the link below to reset your password:\n{reset_url}",
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[user.email],
-        )
-
-        return Response({'detail': 'Password reset email sent'})
+        return Response({'detail': 'If an account with that email exists, a password reset link has been sent.'}, status=status.HTTP_200_OK)
 
 
 class PasswordResetConfirmView(views.APIView):

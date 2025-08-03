@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions
 
 from .models import Product, ProductCategory, Review
 from .serializers import ProductSerializer, ProductCategorySerializer, ReviewSerializer
-from accounts.permissions import IsAdminOrReadOnly
+from accounts.permissions import IsAdminOrReadOnly, IsOwnerOrAdminOrReadOnly
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -22,7 +22,7 @@ class ProductCategoryViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrAdminOrReadOnly]
 
     def get_queryset(self):
         product_slug = self.kwargs.get('product_slug')
